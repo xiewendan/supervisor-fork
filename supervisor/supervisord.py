@@ -84,7 +84,7 @@ class Supervisor:
             return
         
         try:
-            self.options.run_module(self.options.init_py)
+            self.options.run_module(self.options.init_py, argv=(self.options.logger,))
             self.options.logger.info('init_py executed successfully: %s' % self.options.init_py)
         except Exception as e:
             self.options.logger.error('init_py failed, exception: %s, filename:%s' % (str(e), self.options.init_py))

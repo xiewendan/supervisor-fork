@@ -1,3 +1,8 @@
+4.3.0.dev1
+-------------------------
+- Add init_py config in supervisord to do init job
+- Fork to create subprocess, not only execve
+
 4.3.0.dev0 (Next Release)
 -------------------------
 

@@ -357,7 +357,7 @@ def existing_dirpath(v):
     raise ValueError('The directory named as part of the path %s '
                      'does not exist' % v)
 
-def existing_filepath(v):
+def existing_pyfpath(v):
     if v is None:
         return v
     
@@ -366,6 +366,10 @@ def existing_filepath(v):
         raise ValueError('%s is not an existing file' % v)
     if not os.path.isfile(nv):
         raise ValueError('%s is not a file' % v)
+    if not os.path.isabs(nv):
+        raise ValueError('%s is not a full path' % v)
+    if not nv.endswith('.py'):
+        raise ValueError('%s is not a .py file' % v)
     return nv
 
 def logging_level(value):

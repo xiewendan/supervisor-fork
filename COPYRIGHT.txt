@@ -1,3 +1,5 @@
+Modifications in this supervisor-fork are Copyright (c) 2024 xiewendan, All Rights Reserved.
+
 Supervisor is Copyright (c) 2006-2015 Agendaless Consulting and Contributors.
 (http://www.agendaless.com), All Rights Reserved
 

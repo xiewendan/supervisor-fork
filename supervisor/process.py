@@ -344,7 +344,7 @@ class Subprocess(object):
                 if self.config.umask is not None:
                     options.setumask(self.config.umask)
                 if is_module:
-                    options.run_module(filename, argv)
+                    options.run_module(filename, argv=argv, process_name=" ".join(argv))
                 else:
                     options.execve(filename, argv, env)
             except OSError as why:

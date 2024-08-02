@@ -1,37 +1,38 @@
-Supervisor
+Supervisor-fork
 ==========
 
-Supervisor is a client/server system that allows its users to
-control a number of processes on UNIX-like operating systems.
+This project is a fork of the [Supervisor](https://github.com/Supervisor/supervisor) project.
+The original project is licensed under the following terms:
+https://github.com/Supervisor/supervisor/blob/main/LICENSES.txt
 
-Supported Platforms
--------------------
 
-Supervisor has been tested and is known to run on Linux (Ubuntu), Mac OS X
-(10.4, 10.5, 10.6), and Solaris (10 for Intel) and FreeBSD 6.1.  It will
-likely work fine on most UNIX systems.
+What's New
+------------
 
-Supervisor will not run at all under any version of Windows.
 
-Supervisor is intended to work on Python 3 version 3.4 or later
-and on Python 2 version 2.7.
+Add init_py config in supervisord to do init job
+-------------------------------------------------
 
-Documentation
--------------
+.. code-block:: conf
+  [supervisord]
+  init_py=%(here)s/init_supervisord.py
 
-You can view the current Supervisor documentation online `in HTML format
-<http://supervisord.org/>`_ .  This is where you should go for detailed
-installation and configuration documentation.
+- import the py file and call the main(logger_obj) function
+  
 
-Reporting Bugs and Viewing the Source Repository
-------------------------------------------------
+Fork to create subprocess, not only execve
+-------------------------------------------------
+.. code-block:: conf
+  [program:app1]
+  command=%(here)s/my_app2.py arg1 arg2
+  is_module=true
 
-Please report bugs in the `GitHub issue tracker
-<https://github.com/Supervisor/supervisor/issues>`_.
+- command must reference to a python script, arg is optional
+- is_module=true：not use execve to start the command, but use fork in supervisord, and call the main(arg1, arg2, ...) in the py
 
-You can view the source repository for supervisor via
-`https://github.com/Supervisor/supervisor
-<https://github.com/Supervisor/supervisor>`_.
+.. note::
+  not config init_py and is_module, you use it as the original supervisor
+
 
 Contributing
 ------------

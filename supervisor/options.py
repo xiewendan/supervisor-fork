@@ -31,7 +31,7 @@ from supervisor.datatypes import integer
 from supervisor.datatypes import name_to_uid
 from supervisor.datatypes import gid_for_uid
 from supervisor.datatypes import existing_dirpath
-from supervisor.datatypes import existing_filepath
+from supervisor.datatypes import existing_pyfpath
 from supervisor.datatypes import byte_size
 from supervisor.datatypes import signal_number
 from supervisor.datatypes import list_of_exitcodes
@@ -490,7 +490,7 @@ class ServerOptions(Options):
         self.add("silent", "supervisord.silent",
                  "s", "silent", flag=1, default=0)
         self.add("init_py", "supervisord.init_py",
-                 "p:", "init_py=", existing_filepath, default=None)
+                 "p:", "init_py=", existing_pyfpath, default=None)
         self.pidhistory = {}
         self.process_group_configs = []
         self.signal_receiver = SignalReceiver()
@@ -683,7 +683,7 @@ class ServerOptions(Options):
                 proc.environment = env
         section.server_configs = self.server_configs_from_parser(parser)
         section.profile_options = None
-        section.init_py = existing_filepath(get('init_py', None))
+        section.init_py = existing_pyfpath(get('init_py', None))
         return section
 
     def process_groups_from_parser(self, parser):
@@ -1536,11 +1536,11 @@ class ServerOptions(Options):
     def execve(self, filename, argv, env):
         return os.execve(filename, argv, env)
     
-    def run_module(self, filename, argv=None):
+    def run_module(self, filename, argv=None, process_name=None):
         import importlib
-        if argv is not None:
+        if process_name is not None:
             import setproctitle
-            setproctitle.setproctitle(" ".join(argv))
+            setproctitle.setproctitle(process_name)
         
         dir_path = os.path.split(filename)[0]
         base_name = os.path.basename(filename)
@@ -1598,7 +1598,13 @@ class ServerOptions(Options):
     
     def check_module_args(self, filename, argv, st):
         if not os.path.exists(filename):
-            raise NotFound('bad filename: %s' % filename)
+            raise NotFound('file not exist: %s' % filename)
+        
+        if not filename.endswith('.py'):
+            raise BadCommand('must be a py file: %s' % filename)
+        
+        if not os.path.isabs(filename):
+            raise BadCommand('py must be full path: %s' % filename)
 
     def reopenlogs(self):
         self.logger.info('supervisord logreopen')
