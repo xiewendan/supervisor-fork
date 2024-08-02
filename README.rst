@@ -1,5 +1,5 @@
 Supervisor-fork
-==========
+===============
 
 This project is a fork of the [Supervisor](https://github.com/Supervisor/supervisor) project.
 The original project is licensed under the following terms:
@@ -7,13 +7,14 @@ https://github.com/Supervisor/supervisor/blob/main/LICENSES.txt
 
 
 What's New
-------------
+----------
 
 
 Add init_py config in supervisord to do init job
--------------------------------------------------
+------------------------------------------------
 
 .. code-block:: conf
+
   [supervisord]
   init_py=%(here)s/init_supervisord.py
 
@@ -21,8 +22,9 @@ Add init_py config in supervisord to do init job
   
 
 Fork to create subprocess, not only execve
--------------------------------------------------
+------------------------------------------
 .. code-block:: conf
+
   [program:app1]
   command=%(here)s/my_app2.py arg1 arg2
   is_module=true

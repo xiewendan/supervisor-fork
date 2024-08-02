@@ -88,6 +88,7 @@ dist = setup(
     },
     description="A system for controlling process state under UNIX",
     long_description=README + '\n\n' + CHANGES,
+    long_description_content_type="text/x-rst",
     classifiers=CLASSIFIERS,
     author="xiewendan",
     author_email="stephenxjc@126.com",
