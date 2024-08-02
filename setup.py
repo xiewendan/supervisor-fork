@@ -77,7 +77,7 @@ with open(version_txt, 'r') as f:
     supervisor_version = f.read().strip()
 
 dist = setup(
-    name='supervisor',
+    name='supervisor-fork',
     version=supervisor_version,
     license='BSD-derived (http://www.repoze.org/LICENSE.txt)',
     url='http://supervisord.org/',
