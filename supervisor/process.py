@@ -144,7 +144,10 @@ class Subprocess(object):
         # check_execv_args will raise a ProcessException if the execv
         # args are bogus, we break it out into a separate options
         # method call here only to service unit tests
-        self.config.options.check_execv_args(filename, commandargs, st)
+        if self.config.is_module:
+            self.config.options.check_module_args(filename, commandargs, st)
+        else:
+            self.config.options.check_execv_args(filename, commandargs, st)
 
         return filename, commandargs
 
@@ -294,6 +297,7 @@ class Subprocess(object):
             # the terminal window running supervisord is pressed.
             # Presumably it also prevents HUP, etc received by
             # supervisord from being sent to children.
+            is_module = self.config.is_module
             options.setpgrp()
 
             self._prepare_child_fds()
@@ -308,7 +312,10 @@ class Subprocess(object):
                 return # finally clause will exit the child process
 
             # set environment
-            env = os.environ.copy()
+            if is_module:
+                env = os.environ
+            else:
+                env = os.environ.copy()
             env['SUPERVISOR_ENABLED'] = '1'
             serverurl = self.config.serverurl
             if serverurl is None: # unset
@@ -336,7 +343,10 @@ class Subprocess(object):
             try:
                 if self.config.umask is not None:
                     options.setumask(self.config.umask)
-                options.execve(filename, argv, env)
+                if is_module:
+                    options.run_module(filename, argv)
+                else:
+                    options.execve(filename, argv, env)
             except OSError as why:
                 code = errno.errorcode.get(why.args[0], why.args[0])
                 msg = "couldn't exec %s: %s\n" % (argv[0], code)

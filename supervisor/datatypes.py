@@ -357,6 +357,17 @@ def existing_dirpath(v):
     raise ValueError('The directory named as part of the path %s '
                      'does not exist' % v)
 
+def existing_filepath(v):
+    if v is None:
+        return v
+    
+    nv = os.path.expanduser(v)
+    if not os.path.exists(nv):
+        raise ValueError('%s is not an existing file' % v)
+    if not os.path.isfile(nv):
+        raise ValueError('%s is not a file' % v)
+    return nv
+
 def logging_level(value):
     s = str(value).lower()
     level = getLevelNumByDescription(s)

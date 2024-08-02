@@ -74,8 +74,21 @@ class Supervisor:
         if not self.options.nocleanup:
             # clean up old automatic logs
             self.options.clear_autochildlogdir()
+        
+        self.do_init_py()
 
         self.run()
+    
+    def do_init_py(self):
+        if self.options.init_py is None:
+            return
+        
+        try:
+            self.options.run_module(self.options.init_py)
+            self.options.logger.info('init_py executed successfully: %s' % self.options.init_py)
+        except Exception as e:
+            self.options.logger.error('init_py failed, exception: %s, filename:%s' % (str(e), self.options.init_py))
+            exit(1)
 
     def run(self):
         self.process_groups = {} # clear

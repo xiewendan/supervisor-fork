@@ -26,6 +26,7 @@ elif (3, 0) < py_version < (3, 4):
 # Python < 3.8.  See the comments in supervisor/compat.py.
 requires = [
     "setuptools; python_version < '3.8'",
+    "setproctitle",
 ]
 
 tests_require = []

@@ -31,6 +31,7 @@ from supervisor.datatypes import integer
 from supervisor.datatypes import name_to_uid
 from supervisor.datatypes import gid_for_uid
 from supervisor.datatypes import existing_dirpath
+from supervisor.datatypes import existing_filepath
 from supervisor.datatypes import byte_size
 from supervisor.datatypes import signal_number
 from supervisor.datatypes import list_of_exitcodes
@@ -488,6 +489,8 @@ class ServerOptions(Options):
                  "", "profile_options=", profile_options, default=None)
         self.add("silent", "supervisord.silent",
                  "s", "silent", flag=1, default=0)
+        self.add("init_py", "supervisord.init_py",
+                 "p:", "init_py=", existing_filepath, default=None)
         self.pidhistory = {}
         self.process_group_configs = []
         self.signal_receiver = SignalReceiver()
@@ -680,6 +683,7 @@ class ServerOptions(Options):
                 proc.environment = env
         section.server_configs = self.server_configs_from_parser(parser)
         section.profile_options = None
+        section.init_py = existing_filepath(get('init_py', None))
         return section
 
     def process_groups_from_parser(self, parser):
@@ -1029,6 +1033,8 @@ class ServerOptions(Options):
             if command is None:
                 raise ValueError(
                     'program section %s does not specify a command' % section)
+            
+            is_module = boolean(get(section, 'is_module', 'false'))
 
             pconfig = klass(
                 self,
@@ -1061,7 +1067,8 @@ class ServerOptions(Options):
                 exitcodes=exitcodes,
                 redirect_stderr=redirect_stderr,
                 environment=environment,
-                serverurl=serverurl)
+                serverurl=serverurl,
+                is_module=is_module)
 
             programs.append(pconfig)
 
@@ -1528,6 +1535,23 @@ class ServerOptions(Options):
 
     def execve(self, filename, argv, env):
         return os.execve(filename, argv, env)
+    
+    def run_module(self, filename, argv=None):
+        import importlib
+        if argv is not None:
+            import setproctitle
+            setproctitle.setproctitle(" ".join(argv))
+        
+        dir_path = os.path.split(filename)[0]
+        base_name = os.path.basename(filename)
+        mod_name = os.path.splitext(base_name)[0]
+        sys.path.append(dir_path)
+
+        mod_obj = importlib.import_module(mod_name)
+        if argv:
+            mod_obj.main(*argv)
+        else:
+            mod_obj.main()
 
     def mktempfile(self, suffix, prefix, dir):
         # set os._urandomfd as a hack around bad file descriptor bug
@@ -1571,6 +1595,10 @@ class ServerOptions(Options):
 
         elif not os.access(filename, os.X_OK):
             raise NoPermission("no permission to run command %r" % filename)
+    
+    def check_module_args(self, filename, argv, st):
+        if not os.path.exists(filename):
+            raise NotFound('bad filename: %s' % filename)
 
     def reopenlogs(self):
         self.logger.info('supervisord logreopen')
@@ -1877,7 +1905,7 @@ class ProcessConfig(Config):
         'stderr_logfile_backups', 'stderr_logfile_maxbytes',
         'stderr_events_enabled', 'stderr_syslog',
         'stopsignal', 'stopwaitsecs', 'stopasgroup', 'killasgroup',
-        'exitcodes', 'redirect_stderr' ]
+        'exitcodes', 'redirect_stderr', 'is_module' ]
     optional_param_names = [ 'environment', 'serverurl' ]
 
     def __init__(self, options, **params):
