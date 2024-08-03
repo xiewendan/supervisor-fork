@@ -21,3 +21,5 @@ tmp/
 coverage.xml
 nosetests.xml
 .cache/
+example/temp/log/*.out
+example/temp/run/supervisord.pid
