@@ -26,14 +26,12 @@ Fork to create subprocess, not only execve
 .. code-block:: conf
 
   [program:app1]
-  command=%(here)s/my_app2.py arg1 arg2
-  is_module=true
+  fork_command=%(here)s/my_app2.py arg1 arg2
 
-- command must reference to a python script, arg is optional
-- is_module=true：not use execve to start the command, but use fork in supervisord, and call the main(arg1, arg2, ...) in the py
+- fork_command must reference to a python script, arg is optional. call the main(arg1, arg2, ...) in the py
 
 .. note::
-  not config init_py and is_module, you use it as the original supervisor
+  not config init_py and fork_command, you use it as the original supervisor
 
 
 Contributing

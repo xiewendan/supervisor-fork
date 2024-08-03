@@ -1029,12 +1029,15 @@ class ServerOptions(Options):
                 # never create an stderr logfile when redirected
                 logfiles['stderr_logfile'] = None
 
-            command = get(section, 'command', None, expansions=expansions)
+            fork_command = get(section, 'fork_command', None, expansions=expansions)
+            is_fork= fork_command is not None
+            if is_fork:
+                command = fork_command
+            else:
+                command = get(section, 'command', None, expansions=expansions)
             if command is None:
                 raise ValueError(
                     'program section %s does not specify a command' % section)
-            
-            is_module = boolean(get(section, 'is_module', 'false'))
 
             pconfig = klass(
                 self,
@@ -1068,7 +1071,7 @@ class ServerOptions(Options):
                 redirect_stderr=redirect_stderr,
                 environment=environment,
                 serverurl=serverurl,
-                is_module=is_module)
+                is_fork=is_fork)
 
             programs.append(pconfig)
 
@@ -1596,7 +1599,7 @@ class ServerOptions(Options):
         elif not os.access(filename, os.X_OK):
             raise NoPermission("no permission to run command %r" % filename)
     
-    def check_module_args(self, filename, argv, st):
+    def check_fork_args(self, filename, argv, st):
         if not os.path.exists(filename):
             raise NotFound('file not exist: %s' % filename)
         
@@ -1911,7 +1914,7 @@ class ProcessConfig(Config):
         'stderr_logfile_backups', 'stderr_logfile_maxbytes',
         'stderr_events_enabled', 'stderr_syslog',
         'stopsignal', 'stopwaitsecs', 'stopasgroup', 'killasgroup',
-        'exitcodes', 'redirect_stderr', 'is_module' ]
+        'exitcodes', 'redirect_stderr', 'is_fork' ]
     optional_param_names = [ 'environment', 'serverurl' ]
 
     def __init__(self, options, **params):
